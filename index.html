@@ -375,6 +375,56 @@
   .mailrow h5{margin:8px 0 6px;font-size:17px;color:var(--navy);}
   .mailrow p{margin:0;font-size:15px;color:var(--ink);}
 
+  /* email (gmail) mock */
+  .gm{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;min-height:300px;}
+  .gm-side{width:152px;background:#F6F1E7;border-right:1px solid var(--line);padding:12px 10px;flex:0 0 auto;}
+  .gm-compose{width:100%;border:none;background:var(--teal);color:#fff;border-radius:20px;padding:11px;font-weight:600;font-size:14px;cursor:pointer;margin-bottom:12px;}
+  .gm-item{padding:9px 12px;border-radius:9px;font-size:14.5px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+  .gm-item.on{background:#E6DCC9;font-weight:600;color:var(--navy);}
+  .gm-ct{font-size:12px;color:var(--teal-deep);font-weight:600;}
+  .gm-main{flex:1;min-width:0;}
+  .gm-row{padding:13px 16px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:12px;align-items:baseline;}
+  .gm-row:hover{background:var(--surface-warm);}
+  .gm-row .who{font-weight:600;color:var(--ink);width:118px;flex:0 0 auto;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .gm-row .subj{color:var(--ink-soft);font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+  .gm-row.unread .who,.gm-row.unread .subj{color:var(--navy);font-weight:600;}
+  .gm-empty{padding:34px 18px;text-align:center;color:var(--ink-soft);font-size:14.5px;}
+  .gm-read{padding:18px;}
+  .gm-read h4{font-family:"Fraunces",serif;margin:0 0 4px;font-size:19px;color:var(--navy);}
+  .gm-read .meta{font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .gm-read p{font-size:15px;line-height:1.6;color:var(--ink);margin:0 0 14px;}
+  .gm-btn{border:1px solid var(--line);background:var(--surface-warm);border-radius:10px;padding:9px 16px;font-size:14.5px;cursor:pointer;color:var(--navy);font-weight:600;display:inline-flex;gap:7px;align-items:center;}
+  .gm-btn svg{width:16px;height:16px;}
+  .gm-banner{background:var(--good-soft);color:var(--teal-deep);font-size:13.5px;padding:8px 12px;border-radius:9px;margin-bottom:12px;}
+  .gm-reply{margin-top:6px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-warm);}
+  .gm-reply .fake{width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:14.5px;background:#fff;color:var(--ink);}
+
+  /* file-organizing mock */
+  .orggrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .orgcol{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;}
+  .orgcol h5{margin:0;padding:11px 14px;background:#F1EADC;font-size:14.5px;color:var(--navy);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+  .orgcol h5 svg{width:17px;height:17px;color:var(--gold);}
+  .orgfile{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink);cursor:pointer;}
+  .orgfile:last-child{border-bottom:none;}
+  .orgfile:hover{background:var(--surface-warm);}
+  .orgfile svg{width:17px;height:17px;color:var(--teal-deep);flex:0 0 auto;}
+  .orgfile .rm{margin-left:auto;color:var(--ink-soft);font-size:12.5px;}
+  .orgfile.gone{opacity:.35;text-decoration:line-through;}
+
+  /* private-browsing compare */
+  .inco{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .incocard{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;}
+  .incocard.dark{background:#2A2F3A;color:#E7E3DB;border-color:#3A4150;}
+  .incocard h5{margin:0 0 10px;font-size:15.5px;display:flex;align-items:center;gap:8px;}
+  .incocard.dark h5{color:#fff;}
+  .incocard ul{margin:0;padding-left:18px;font-size:14px;line-height:1.65;}
+  .incocard svg{width:20px;height:20px;flex:0 0 auto;}
+  @media (max-width:640px){
+   .orggrid,.inco{grid-template-columns:1fr;}
+   .gm-side{width:118px;}
+   .gm-row .who{width:84px;}
+  }
+
   /* real-world panels */
   .rwpanel{background:#fff;border-radius:14px;padding:22px;box-shadow:0 6px 18px rgba(45,50,42,.10);}
   .rwpanel h4{font-family:"Fraunces",serif;margin:0 0 10px;font-size:20px;color:var(--navy);}
@@ -655,25 +705,31 @@ function isTouch(){return STATE.device==='ipad'||STATE.device==='iphone';}
 var STOPS=[
  {id:'basics',title:'Getting comfortable',badge:'First Steps',desc:'Reading a web address, moving between tabs, back, and refresh \u2014 then a real look-up.',built:true},
  {id:'files',title:'Your files & the cloud',badge:'Cloud Ready',desc:'Your device versus the cloud, the common file types, and a real photo of yourself.',built:true},
+ {id:'organize',title:'Organizing your files',badge:'All in Order',desc:'Documents versus Downloads, tidying each, and choosing your device or the cloud.',built:true},
  {id:'capture',title:'Capturing your screen',badge:'Snapshot',desc:'Take a real screenshot and bring it right into the page.',built:true},
  {id:'exam',title:'The exam room',badge:'Exam Ready',desc:'A full in-browser exam \u2014 the camera check, the questions, and rescuing a frozen page.',built:true},
  {id:'search',title:'Searching, then trying it',badge:'Search Pro',desc:'Tell a real result from an ad \u2014 then find a real home price and bring back proof.',built:true},
  {id:'youtube',title:'Watching on YouTube',badge:'Show Time',desc:'Searching, playing, volume, and full screen \u2014 then find a real video you\u2019d enjoy.',built:true},
  {id:'meet',title:'Joining video meetings',badge:'Face to Face',desc:'Join from a link, run your camera and microphone, mute, and share your screen.',built:true},
  {id:'social',title:'Messenger & Facebook',badge:'Well Connected',desc:'A full tour of Messenger \u2014 chats, photos, video calls \u2014 then send a real one.',built:true},
+ {id:'email',title:'Email, in and out',badge:'Message Master',desc:'Your inbox, sent, and spam \u2014 reading, replying, and setting your signature in Gmail.',built:true},
  {id:'safe',title:'Staying safe online',badge:'Sharp Eye',desc:'The three tells of a scam, spotting fakes \u2014 and a second opinion whenever you want one.',built:true},
+ {id:'incognito',title:'Private browsing',badge:'Quiet Window',desc:'Regular windows versus private ones \u2014 what each is for, and when to reach for which.',built:true},
  {id:'ai',title:'Getting help from AI',badge:'Ahead of the Curve',desc:'Put your corner helper to work \u2014 questions, pictures, anything on your mind.',built:true}
 ];
 function badgeIcon(id){var m={
  'First Steps':'<path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/>',
  'Cloud Ready':'<path d="M18 10h-1.3A5 5 0 0 0 7 9a4 4 0 0 0 .5 8H18a4 4 0 0 0 0-8z"/>',
+ 'All in Order':'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
  'Snapshot':'<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 6l1.5-2h5L16 6"/>',
  'Exam Ready':'<path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
  'Search Pro':'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
  'Show Time':'<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>',
  'Face to Face':'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>',
  'Well Connected':'<circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.6 10.6l6.8-3.2M8.6 13.4l6.8 3.2"/>',
+ 'Message Master':'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
  'Sharp Eye':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+ 'Quiet Window':'<circle cx="12" cy="12" r="9"/><path d="M8 15c1-1.6 2.4-2.4 4-2.4s3 .8 4 2.4M9.5 10h.01M14.5 10h.01"/>',
  'Ahead of the Curve':'<path d="M13 2L3 14h7l-1 8 10-12h-7z"/>'};return m[id]||m['First Steps'];}
 
 /* ================= tips ================= */
@@ -686,7 +742,10 @@ var TIPS=[
  "The letters after a file\u2019s name tell you what it is \u2014 <b>.pdf</b> is a document, <b>.jpg</b> is a photo.",
  "A web address starting with <b>https</b> means the connection is locked and private \u2014 look for the little padlock.",
  "To capture your screen any time, {SHOT}.",
- "Stuck or unsure about anything? Your helper sits in the corner \u2014 you can even send it a picture of what you see."
+ "Stuck or unsure about anything? Your helper sits in the corner \u2014 you can even send it a picture of what you see.",
+ "In Gmail, your <b>Sent</b> folder keeps a copy of everything you\u2019ve sent \u2014 handy for finding what you wrote.",
+ "Downloads is where new files land; your <b>Documents</b> folder is where the keepers belong. Moving them over keeps things tidy.",
+ "A <b>private window</b> forgets your visit once you close it \u2014 useful on a shared or borrowed computer."
 ];
 
 /* ================= confetti ================= */
@@ -1823,6 +1882,202 @@ function boot(){
  if(STATE.done){showHome();}
  else{document.getElementById('intake').classList.remove('hidden');document.getElementById('home').classList.add('hidden');document.getElementById('lesson').classList.add('hidden');}
 }
+/* boot() is called at the very end, after all lessons are defined */
+
+/* ============================================================
+   NEW LESSONS: organize, email, incognito
+   ============================================================ */
+
+var DOC_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+var PIC_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+var COG_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 16v4"/></svg>';
+
+/* ---------- ORGANIZE ---------- */
+function orgFile(id,name,icon,tag){return '<div class="orgfile" data-org="'+id+'">'+icon+'<span>'+name+'</span>'+(tag?'<span class="rm">'+tag+'</span>':'')+'</div>';}
+function orgCol(title,which,rows){
+ var ic=which==='down'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+ return '<div class="orgcol"><h5>'+ic+title+'</h5>'+rows+'</div>';
+}
+
+LESSONS.organize={title:'Organizing your files',steps:[
+ {phase:'lecture',coach:'Two folders quietly fill up over time: <b>Downloads</b>, where new things land on their own, and <b>Documents</b>, where the keepers belong.',
+  tip:'The habit is small: move what you want to keep into Documents, and clear out the rest.',
+  stage:function(){return '<div class="rwpanel"><h4>Where your files gather</h4>'+
+   '<div class="concept"><div class="cbox drive"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div><b>Downloads</b><span>Everything you save from the web arrives here first</span></div>'+
+   '<div class="arrow"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>'+
+   '<div class="cbox cloud"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><b>Documents</b><span>The tidy home for things worth keeping</span></div></div>'+
+   '<p>You\u2019ll move a keeper across, clear a leftover you no longer need, then choose between your {DEV} and the cloud.</p>'+
+   '<div class="rw-actions" style="justify-content:center;"><button class="btn" id="lectureNext">Show me</button></div></div>';},
+  wire:function(root,onDone){root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
+ {phase:'practice',coach:'Here are both folders. Your <b>certificate.pdf</b> in Downloads is worth keeping \u2014 {CLICK} it to move it into Documents.',
+  tip:'Moving a file leaves Downloads and lands in Documents; nothing is lost.',
+  target:'[data-org="cert"]',nudge:'The certificate.pdf line in the Downloads column on the left.',
+  swap:function(root){
+   var f=root.querySelector('[data-org="cert"]');if(f)f.classList.add('gone');
+   var docs=root.querySelectorAll('.orgcol')[1];if(docs)docs.insertAdjacentHTML('beforeend',orgFile('certd','certificate.pdf',DOC_ICON,'moved here'));},
+  stage:function(){
+   var down=orgFile('receipt','receipt_march.pdf',DOC_ICON,'')+orgFile('installer','SetupHelper.exe',DOC_ICON,'leftover')+orgFile('cert','certificate.pdf',DOC_ICON,'keeper')+orgFile('dup','photo (1).jpg',PIC_ICON,'duplicate');
+   var docs=orgFile('lic','Insurance License.pdf',DOC_ICON,'')+orgFile('tax','Tax Records 2025.pdf',DOC_ICON,'');
+   return '<div class="orggrid">'+orgCol('Downloads','down',down)+orgCol('Documents','docs',docs)+'</div>';}},
+ {phase:'practice',coach:'Now clear what you no longer need. That <b>SetupHelper.exe</b> already did its job \u2014 {CLICK} it to remove it and free up room.',
+  tip:'A leftover installer is safe to delete once the program is installed.',
+  target:'[data-org="installer"]',nudge:'The SetupHelper.exe line marked \u201cleftover\u201d in Downloads.',
+  onCorrect:function(root,frame){var f=root.querySelector('[data-org="installer"]');if(f)glossaryPop(frame,f,'Installer','the file that sets up a program. Once it\u2019s installed, the installer is safe to clear.');},
+  swap:function(root){var f=root.querySelector('[data-org="installer"]');if(f)f.classList.add('gone');},
+  stage:function(){
+   var down=orgFile('receipt','receipt_march.pdf',DOC_ICON,'')+orgFile('installer','SetupHelper.exe',DOC_ICON,'leftover')+orgFile('dup','photo (1).jpg',PIC_ICON,'duplicate');
+   var docs=orgFile('lic','Insurance License.pdf',DOC_ICON,'')+orgFile('tax','Tax Records 2025.pdf',DOC_ICON,'')+orgFile('certd','certificate.pdf',DOC_ICON,'');
+   return '<div class="orggrid">'+orgCol('Downloads','down',down)+orgCol('Documents','docs',docs)+'</div>';}},
+ {phase:'lecture',coach:'One more choice: <b>your {DEV}</b> or <b>the cloud</b>. Saving on your {DEV} is quick and works offline; the cloud keeps a copy safe even if the device is lost.',
+  tip:'For anything precious \u2014 your license, family photos \u2014 keep it in both places.',
+  stage:function(){return '<div class="rwpanel" style="text-align:center;"><h4>Your {DEV}, or the cloud</h4>'+
+   '<div class="concept"><div class="cbox drive"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><b>On your {DEV}</b><span>Fast, always there, works without internet</span></div>'+
+   '<div class="cbox cloud"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.3A5 5 0 0 0 7 9a4 4 0 0 0 .5 8H18a4 4 0 0 0 0-8z"/></svg></div><b>In the cloud</b><span>Reachable from any device, safe if one is lost</span></div></div>'+
+   '<p>Google Drive, iCloud, and OneDrive are all clouds. Many devices back up to one automatically \u2014 a quiet safety net.</p>'+
+   '<div class="rw-actions" style="justify-content:center;"><button class="btn" id="lectureNext">Makes sense</button></div></div>';},
+  wire:function(root,onDone){root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
+ {phase:'application',isReal:true,kind:'confirm',
+  coach:'Now the real thing: open your files and move one item from <b>Downloads</b> into <b>Documents</b>.',
+  tip:'Just one file is plenty \u2014 the move is the whole skill.',
+  helperPrime:'I want to move a file from my Downloads folder into my Documents folder and I\u2019m not sure how. Can you walk me through it step by step?',
+  stage:function(){
+   var steps=isTouch()?
+    '<li>Open the <b>Files</b> app.</li><li>Tap <b>Browse</b>, then <b>Downloads</b>.</li><li>Touch and hold a file, choose <b>Move</b>, and pick <b>Documents</b>.</li>':
+    '<li>Open your file window \u2014 the <b>folder</b> icon on your taskbar or dock.</li><li>Click <b>Downloads</b> on the left.</li><li>Drag a file onto <b>Documents</b>, or right-click it and choose <b>Move</b>.</li>';
+   return '<div class="rwpanel"><h4>Move one real file</h4><ol class="steps-list">'+steps+'</ol>'+
+   '<div class="rw-actions"><button class="btn" id="openHelperBtn">Open my helper</button>'+
+   '<button class="btn secondary" id="confirmGo">I moved a file</button></div>'+
+   '<div class="rw-actions" style="margin-top:8px;"><button class="btn secondary" id="sideways">Something went sideways</button></div></div>';},
+  sidewaysQ:'I\u2019m trying to move a file from Downloads to Documents on my device and I\u2019m stuck. Can you help?'}
+]};
+
+/* ---------- EMAIL ---------- */
+function gmShell(active,main){
+ function it(id,label,ct){return '<div class="gm-item'+(active===id?' on':'')+'" data-gm="'+id+'"><span>'+label+'</span>'+(ct?'<span class="gm-ct">'+ct+'</span>':'')+'</div>';}
+ return '<div class="gm"><div class="gm-side"><button class="gm-compose" data-gm="compose">Compose</button>'+
+  it('inbox','Inbox','2')+it('sent','Sent','')+it('spam','Spam','1')+
+  '</div><div class="gm-main">'+main+'</div></div>';
+}
+function gmRow(id,who,subj,unread){return '<div class="gm-row'+(unread?' unread':'')+'" data-gm="'+id+'"><span class="who">'+who+'</span><span class="subj">'+subj+'</span></div>';}
+function gmInboxMain(){return gmRow('msg1','Pastor Reyes','Sabbath potluck this week',true)+gmRow('r2','Illinois Insurance CE','Your CE certificate is ready',true)+gmRow('r3','Rose Ann','Thank you for the photos \u2764',false);}
+function gmReadMain(withReply){
+ var r=withReply?'<div class="gm-reply"><div class="fake">Hi Pastor Reyes, I\u2019d be glad to \u2014 I\u2019ll bring a dish. See you Sabbath!</div><div class="rw-actions" style="margin-top:10px;"><button class="gm-btn solid" style="background:var(--teal);color:#fff;border:none;">Send</button></div></div>':'<button class="gm-btn" data-gm="reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-6-6 6-6M3 11h11a6 6 0 0 1 6 6v3"/></svg>Reply</button>';
+ return '<div class="gm-read"><h4>Sabbath potluck this week</h4><div class="meta">Pastor Reyes &nbsp;\u2014&nbsp; to you</div>'+
+  '<p>Hello, we\u2019re gathering after the service this Sabbath for a potluck. Could you bring a dish to share? Looking forward to seeing you and the family.</p>'+r+'</div>';
+}
+function gmSentMain(){return gmRow('s1','To: Rose Ann','Here are the photos from Sunday',false)+gmRow('s2','To: Dr. Lim','Rescheduling my appointment',false)+gmRow('s3','To: Church office','Count me in for the potluck',false);}
+function gmSpamMain(){return '<div style="padding:12px 16px 0;"><div class="gm-banner">Gmail sets suspected junk aside here. A glance now and then catches anything held by mistake.</div></div>'+gmRow('sp1','WlNNER-Notify','You have won a $500 gift card!!!',true)+gmRow('sp2','Account-Secure','Urgent: verify your password now',false);}
+
+LESSONS.email={title:'Email, in and out',steps:[
+ {phase:'lecture',coach:'Email keeps three places worth knowing: your <b>Inbox</b> (what arrives), <b>Sent</b> (copies of what you send), and <b>Spam</b> (junk Gmail sets aside for you).',
+  tip:'Reading, replying, and a tidy signature all follow from those three.',
+  stage:function(){return '<div class="rwpanel"><h4>The three places in Gmail</h4>'+
+   '<div class="urlkey" style="margin-top:4px;">'+
+   '<div><i style="background:var(--teal);"></i><span><b>Inbox</b> \u2014 new messages land here, newest at the top.</span></div>'+
+   '<div><i style="background:var(--navy);"></i><span><b>Sent</b> \u2014 a copy of everything you send, kept for you.</span></div>'+
+   '<div><i style="background:var(--gold);"></i><span><b>Spam</b> \u2014 suspected junk, held aside so it stays out of your way.</span></div></div>'+
+   '<div class="rw-actions"><button class="btn" id="lectureNext">Open my inbox</button></div></div>';},
+  wire:function(root,onDone){root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
+ {phase:'practice',coach:'This is your inbox. {CLICK} the message from <b>Pastor Reyes</b> to open and read it.',
+  tip:'Bolder lines are unread. Opening one marks it as read.',
+  target:'[data-gm="msg1"]',nudge:'The top line \u2014 \u201cSabbath potluck this week.\u201d',
+  swap:function(root){root.querySelector('.gm-main').innerHTML=gmReadMain(false);},
+  stage:function(){return gmShell('inbox',gmInboxMain());}},
+ {phase:'practice',coach:'To write back, {CLICK} <b>Reply</b> at the bottom of the message.',
+  tip:'Reply keeps the same conversation together, so nothing gets scattered.',
+  target:'[data-gm="reply"]',nudge:'The Reply button just under the note.',
+  swap:function(root){root.querySelector('.gm-main').innerHTML=gmReadMain(true);},
+  stage:function(){return gmShell('inbox',gmReadMain(false));}},
+ {phase:'practice',coach:'Every message you send is kept. {CLICK} <b>Sent</b> on the left to see your copies.',
+  tip:'This is where to look when you need to find something you wrote.',
+  target:'[data-gm="sent"]',nudge:'The word \u201cSent\u201d in the list on the left.',
+  swap:function(root){root.querySelector('.gm-main').innerHTML=gmSentMain();root.querySelectorAll('.gm-item').forEach(function(i){i.classList.toggle('on',i.getAttribute('data-gm')==='sent');});},
+  stage:function(){return gmShell('inbox',gmInboxMain());}},
+ {phase:'practice',coach:'Now {CLICK} <b>Spam</b> to see what Gmail set aside. A quick look keeps good mail from getting lost.',
+  tip:'Anything truly junk can stay here \u2014 it clears itself out over time.',
+  target:'[data-gm="spam"]',nudge:'The word \u201cSpam\u201d in the left-hand list.',
+  onCorrect:function(root,frame){var s=root.querySelector('[data-gm="spam"]');if(s)glossaryPop(frame,s,'Spam folder','where suspected junk is held, away from your inbox. Glance in now and then for anything caught by mistake.');},
+  swap:function(root){root.querySelector('.gm-main').innerHTML=gmSpamMain();root.querySelectorAll('.gm-item').forEach(function(i){i.classList.toggle('on',i.getAttribute('data-gm')==='spam');});},
+  stage:function(){return gmShell('inbox',gmInboxMain());}},
+ {phase:'application',isReal:true,kind:'confirm',
+  coach:'Now a real touch: set your <b>signature</b> \u2014 the little sign-off that adds itself to the bottom of every email you send.',
+  tip:'Your name is plenty. You can add a phone number or a kind closing line if you like.',
+  helperPrime:'I want to set up my email signature in Gmail so my name appears at the bottom of my messages. Can you walk me through where to find it?',
+  stage:function(){
+   var steps=isTouch()?
+    '<li>Open the <b>Gmail</b> app and tap the <b>menu</b> (three lines, top left).</li><li>Scroll down to <b>Settings</b>, then tap your email address.</li><li>Tap <b>Mobile Signature</b>, type your name, and save.</li>':
+    '<li>Open Gmail and click the <b>gear</b> at the top right, then <b>See all settings</b>.</li><li>On the <b>General</b> tab, scroll to <b>Signature</b> and click <b>Create new</b>.</li><li>Type your name, then scroll down and <b>Save Changes</b>.</li>';
+   return '<div class="rwpanel"><h4>Set your email signature</h4><ol class="steps-list">'+steps+'</ol>'+
+   '<div class="rw-actions"><button class="btn" id="openHelperBtn">Open my helper</button>'+
+   '<button class="btn secondary" id="confirmGo">I set my signature</button></div>'+
+   '<div class="rw-actions" style="margin-top:8px;"><button class="btn secondary" id="sideways">Something went sideways</button></div></div>';},
+  sidewaysQ:'I\u2019m setting up my signature in Gmail and I can\u2019t find the right setting. Can you guide me?'}
+]};
+
+/* ---------- INCOGNITO ---------- */
+LESSONS.incognito={title:'Private browsing',steps:[
+ {phase:'lecture',coach:'A <b>regular window</b> remembers your visits \u2014 history and sign-ins \u2014 so things stay convenient. A <b>private window</b> forgets the visit the moment you close it.',
+  tip:'Chrome calls its private window <b>Incognito</b>. Safari and Edge simply call it Private.',
+  stage:function(){return '<div class="inco">'+
+   '<div class="incocard"><h5><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal-deep)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Regular window</h5>'+
+   '<ul><li>Remembers where you\u2019ve been</li><li>Keeps you signed in</li><li>Fills in addresses and passwords</li><li>Best for your own device, day to day</li></ul></div>'+
+   '<div class="incocard dark"><h5><svg viewBox="0 0 24 24" fill="none" stroke="#A9CFC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1-1.6 2.4-2.4 4-2.4s3 .8 4 2.4M9.5 10h.01M14.5 10h.01"/></svg>Private window</h5>'+
+   '<ul><li>Forgets the visit once closed</li><li>Signs you out at the end</li><li>Leaves nothing behind on the device</li><li>Best on a shared or borrowed computer</li></ul></div></div>';},
+  wire:function(root,onDone){var b=document.createElement('div');b.className='rw-actions';b.style.marginTop='14px';b.innerHTML='<button class="btn" id="lectureNext">Good to know</button>';root.appendChild(b);root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
+ {phase:'practice',coach:'A private window opens from the browser menu. {CLICK} the <b>three dots</b> at the top right to open it.',
+  tip:'That little menu holds most of the browser\u2019s extra choices.',
+  target:'[data-inc="menu"]',nudge:'The three stacked dots at the far right of the top bar.',
+  swap:function(root){var d=root.querySelector('[data-inc="drop"]');if(d)d.style.display='block';},
+  stage:function(){return '<div class="fb"><div style="display:flex;align-items:center;gap:10px;padding:6px 4px;position:relative;">'+
+   '<div style="flex:1;background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-size:13.5px;color:var(--ink-soft);">https://www.google.com</div>'+
+   '<button data-inc="menu" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:18px;color:var(--ink);line-height:1;">\u22EE</button>'+
+   '<div data-inc="drop" style="display:none;position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(45,50,42,.18);padding:6px;width:210px;z-index:5;">'+
+   '<div style="padding:9px 12px;font-size:14px;color:var(--ink-soft);">New tab</div>'+
+   '<div data-inc="new" style="padding:9px 12px;font-size:14px;color:var(--navy);font-weight:600;background:var(--surface-warm);border-radius:8px;cursor:pointer;">New private window</div>'+
+   '<div style="padding:9px 12px;font-size:14px;color:var(--ink-soft);">Settings</div></div></div>'+
+   '<div class="fb-body" style="text-align:center;color:var(--ink-soft);"><p style="margin:0;">A regular Google window.</p></div></div>';}},
+ {phase:'practice',coach:'There it is. {CLICK} <b>New private window</b> to open one.',
+  tip:'A private window usually looks darker, so you always know which kind you\u2019re in.',
+  target:'[data-inc="new"]',nudge:'The highlighted \u201cNew private window\u201d line in the menu.',
+  swap:function(root){root.querySelector('.fb').innerHTML='<div class="fb-body" style="background:#2A2F3A;border-radius:10px;text-align:center;color:#E7E3DB;padding:26px 14px;"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#A9CFC4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><circle cx="12" cy="12" r="9"/><path d="M8 15c1-1.6 2.4-2.4 4-2.4s3 .8 4 2.4M9.5 10h.01M14.5 10h.01"/></svg><h4 style="color:#fff;margin:0 0 6px;font-family:\'Fraunces\',serif;">You\u2019re browsing privately</h4><p style="margin:0;color:#C2C7D0;">Close this window and the visit is forgotten.</p></div>';},
+  stage:function(){return '<div class="fb"><div style="display:flex;align-items:center;gap:10px;padding:6px 4px;position:relative;">'+
+   '<div style="flex:1;background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-size:13.5px;color:var(--ink-soft);">https://www.google.com</div>'+
+   '<button style="width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:18px;color:var(--ink);line-height:1;">\u22EE</button>'+
+   '<div style="position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(45,50,42,.18);padding:6px;width:210px;z-index:5;">'+
+   '<div style="padding:9px 12px;font-size:14px;color:var(--ink-soft);">New tab</div>'+
+   '<div data-inc="new" style="padding:9px 12px;font-size:14px;color:var(--navy);font-weight:600;background:var(--surface-warm);border-radius:8px;cursor:pointer;">New private window</div>'+
+   '<div style="padding:9px 12px;font-size:14px;color:var(--ink-soft);">Settings</div></div></div>'+
+   '<div class="fb-body" style="text-align:center;color:var(--ink-soft);"><p style="margin:0;">A regular Google window.</p></div></div>';}},
+ {phase:'application',isReal:true,kind:'confirm',
+  coach:'Now open a real private window on your own {DEV}.',
+  tip:'When you\u2019re done, closing it clears the visit \u2014 nothing to tidy up.',
+  helperPrime:'I want to open a private browsing window on my device and I\u2019m not sure of the steps. Can you show me?',
+  stage:function(){
+   var d=STATE.device,steps;
+   if(d==='ipad'||d==='iphone')steps='<li>Open <b>Safari</b>.</li><li>Tap the <b>tabs</b> button (two squares, bottom or top right).</li><li>Tap <b>Private</b>, then the <b>+</b> to open a private tab.</li>';
+   else if(d==='mac')steps='<li>Open <b>Chrome</b>.</li><li>Click the <b>three dots</b> at the top right.</li><li>Choose <b>New Incognito window</b> \u2014 or press <b>Command</b> + <b>Shift</b> + <b>N</b>.</li>';
+   else steps='<li>Open <b>Chrome</b>.</li><li>Click the <b>three dots</b> at the top right.</li><li>Choose <b>New Incognito window</b> \u2014 or press <b>Ctrl</b> + <b>Shift</b> + <b>N</b>.</li>';
+   return '<div class="rwpanel"><h4>Open a real private window</h4><ol class="steps-list">'+steps+'</ol>'+
+   '<p>You\u2019ll know it worked by the darker look and a little private symbol.</p>'+
+   '<div class="rw-actions"><button class="btn" id="openHelperBtn">Open my helper</button>'+
+   '<button class="btn secondary" id="confirmGo">I opened one</button></div>'+
+   '<div class="rw-actions" style="margin-top:8px;"><button class="btn secondary" id="sideways">Something went sideways</button></div></div>';},
+  sidewaysQ:'I\u2019m trying to open a private (Incognito) browsing window on my device and I\u2019m stuck. Can you help?'}
+]};
+
+/* ---------- glossary additions ---------- */
+GLOSS.push(
+ {t:'Inbox',d:'Where new email arrives, newest at the top. Your email\u2019s front door.'},
+ {t:'Sent folder',d:'A kept copy of every message you send \u2014 the place to find what you wrote.'},
+ {t:'Spam folder',d:'Where suspected junk is set aside, away from your inbox. Worth a occasional glance.'},
+ {t:'Email signature',d:'A sign-off that adds itself to the bottom of your emails \u2014 your name, and anything else you choose.'},
+ {t:'Downloads folder',d:'Where files from the web land first. A busy front hallway that\u2019s worth clearing now and then.'},
+ {t:'Documents folder',d:'The tidy home for files worth keeping. Move your keepers here.'},
+ {t:'Hard drive',d:'The storage inside your device. Fast and always there, but tied to that one machine.'},
+ {t:'Private / Incognito window',d:'A browser window that forgets the visit once closed. Good on a shared or borrowed computer.'}
+);
+
+/* ---------- start the app (all lessons now defined) ---------- */
 boot();
 </script>
 </body>
