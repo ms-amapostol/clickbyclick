@@ -411,6 +411,27 @@
   .orgfile .rm{margin-left:auto;color:var(--ink-soft);font-size:12.5px;}
   .orgfile.gone{opacity:.35;text-decoration:line-through;}
 
+  /* file-manager mock (organizing) */
+  .fm{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;}
+  .fm-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#F1EADC;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .fm-crumb{font-size:14.5px;color:var(--navy);font-weight:600;display:flex;align-items:center;gap:7px;}
+  .fm-crumb .sep{color:var(--ink-soft);font-weight:400;}
+  .fm-crumb svg{width:16px;height:16px;color:var(--gold);}
+  .fm-newbtn{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 13px;font-size:13.5px;color:var(--navy);font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center;}
+  .fm-newbtn svg{width:15px;height:15px;}
+  .fm-newbtn.save{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .fm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;padding:16px;min-height:150px;align-content:start;}
+  .fm-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:12px;cursor:pointer;text-align:center;border:1.5px solid transparent;}
+  .fm-item:hover{background:var(--surface-warm);}
+  .fm-item.sel{background:var(--teal-soft);border-color:var(--teal);}
+  .fm-ico{width:44px;height:44px;display:grid;place-items:center;}
+  .fm-ico svg{width:42px;height:42px;}
+  .fm-ico.folder svg{color:var(--gold);}
+  .fm-ico.file svg{color:var(--teal-deep);}
+  .fm-name{font-size:12.8px;color:var(--ink);word-break:break-word;line-height:1.3;max-width:104px;}
+  .fm-name input{width:100px;border:1.5px solid var(--teal);border-radius:6px;padding:3px 5px;font-size:12.5px;text-align:center;color:var(--ink);background:#fff;}
+  .fm-banner{margin:0 16px 16px;background:var(--good-soft);border:1px solid var(--teal-soft);border-radius:10px;padding:9px 13px;font-size:14px;color:var(--teal-deep);}
+
   /* private-browsing compare */
   .inco{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .incocard{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;}
@@ -705,7 +726,7 @@ function isTouch(){return STATE.device==='ipad'||STATE.device==='iphone';}
 var STOPS=[
  {id:'basics',title:'Getting comfortable',badge:'First Steps',desc:'Reading a web address, moving between tabs, back, and refresh \u2014 then a real look-up.',built:true},
  {id:'files',title:'Your files & the cloud',badge:'Cloud Ready',desc:'Your device versus the cloud, the common file types, and a real photo of yourself.',built:true},
- {id:'organize',title:'Organizing your files',badge:'All in Order',desc:'Documents versus Downloads, tidying each, and choosing your device or the cloud.',built:true},
+ {id:'organize',title:'Organizing your files',badge:'All in Order',desc:'Making and naming folders, nesting them, renaming files, and choosing your device or the cloud.',built:true},
  {id:'capture',title:'Capturing your screen',badge:'Snapshot',desc:'Take a real screenshot and bring it right into the page.',built:true},
  {id:'exam',title:'The exam room',badge:'Exam Ready',desc:'A full in-browser exam \u2014 the camera check, the questions, and rescuing a frozen page.',built:true},
  {id:'search',title:'Searching, then trying it',badge:'Search Pro',desc:'Tell a real result from an ad \u2014 then find a real home price and bring back proof.',built:true},
@@ -1675,6 +1696,35 @@ function openToolkit(){
 function getKey(){try{return localStorage.getItem('cbc_key')||'';}catch(e){return '';}}
 function setKey(v){try{if(v)localStorage.setItem('cbc_key',v);else localStorage.removeItem('cbc_key');}catch(e){}}
 function devLabelFull(d){return d==='mac'?'a Mac computer':d==='ipad'?'an iPad':d==='iphone'?'an iPhone':'a Windows computer';}
+function setKeyResult(el,kind,msg){
+ if(!el)return;
+ var c=kind==='ok'?'var(--teal-deep)':kind==='bad'?'#8A5A12':'var(--ink-soft)';
+ var bg=kind==='ok'?'var(--good-soft)':kind==='bad'?'#F3E7D0':'var(--surface-warm)';
+ var icon=kind==='ok'?'\u2713 ':kind==='bad'?'\u26A0 ':'';
+ el.innerHTML='<div style="background:'+bg+';border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:14px;line-height:1.5;color:'+c+';">'+icon+msg+'</div>';
+}
+function testApiKey(keyVal,resultEl,btnEl){
+ var key=(keyVal||'').trim();
+ if(!key){setKeyResult(resultEl,'bad','Paste a key first, then test it.');return;}
+ if(btnEl){btnEl.disabled=true;btnEl.style.opacity='.6';btnEl.textContent='Checking\u2026';}
+ setKeyResult(resultEl,'wait','Checking the key\u2026');
+ var done=function(txt,kind){setKeyResult(resultEl,kind,txt);if(btnEl){btnEl.disabled=false;btnEl.style.opacity='1';btnEl.textContent='Test this key';}};
+ fetch('https://api.anthropic.com/v1/messages',{
+  method:'POST',
+  headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+  body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:8,messages:[{role:'user',content:'Say OK'}]})
+ }).then(function(res){return res.json().then(function(data){return {status:res.status,data:data};});})
+ .then(function(r){
+  var err=(r.data&&r.data.error)||{};
+  if(r.status===200&&r.data&&r.data.content){done('This key works. Your helper is ready to answer.','ok');}
+  else if(r.status===401||err.type==='authentication_error'){done('That key wasn\u2019t accepted. Check for a missing or extra character, then paste it again.','bad');}
+  else if(r.status===400&&/model/i.test(err.message||'')){done('The key is valid, but the account can\u2019t reach this helper\u2019s model yet. It may need access turned on.','bad');}
+  else if(r.status===429){done('The key is valid, but it\u2019s over its limit right now. Try again in a little while.','bad');}
+  else if(r.status===402||/credit|billing/i.test(err.message||'')){done('The key is valid, but the account needs credit added before it can answer.','bad');}
+  else{done('Something got in the way'+(err.message?' ('+err.message+')':'')+'. Try again in a moment.','bad');}
+ })
+ .catch(function(){done('Couldn\u2019t reach the internet. Check your connection and try again.','bad');});
+}
 function openSettings(){
  var has=!!getKey();
  var devs=[['win','Windows'],['mac','Mac'],['ipad','iPad'],['iphone','iPhone']];
@@ -1683,7 +1733,8 @@ function openSettings(){
   '<div class="rwpanel" style="box-shadow:none;background:var(--surface-warm);border:1px solid var(--line);margin-bottom:14px;">'+
   '<h4>Your helper\u2019s key</h4><p>The corner helper needs a key to answer. Paste it once here; it stays on this device only. '+(has?'<b style="color:var(--teal-deep);">A key is saved.</b>':'<b style="color:#8A5A12;">No key saved yet.</b>')+'</p>'+
   '<input class="entry-in" id="keyIn" placeholder="Paste the key here\u2026" style="margin-bottom:10px;">'+
-  '<div class="rw-actions"><button class="btn" id="keySave">Save key</button>'+(has?'<button class="btn secondary" id="keyRemove">Remove key</button>':'')+'</div>'+
+  '<div class="rw-actions"><button class="btn" id="keySave">Save key</button><button class="btn secondary" id="keyTest">Test this key</button>'+(has?'<button class="btn secondary" id="keyRemove">Remove key</button>':'')+'</div>'+
+  '<div id="keyResult" style="margin-top:10px;"></div>'+
   '<p style="font-size:13px;color:var(--ink-soft);margin:10px 0 0;">Tip: set a small monthly spending limit on the key so there are no surprises.</p></div>'+
   '<div class="rwpanel" style="box-shadow:none;background:var(--surface-warm);border:1px solid var(--line);margin-bottom:14px;">'+
   '<h4>This device</h4><p>Instructions adjust to match. You\u2019re set to <b>'+devLabelFull(STATE.device)+'</b>.</p>'+
@@ -1698,6 +1749,7 @@ function openSettings(){
  var back=openModal(inner);
  var kin=back.querySelector('#keyIn');if(getKey())kin.value=getKey();
  back.querySelector('#keySave').addEventListener('click',function(){setKey(kin.value.trim());document.body.removeChild(back);openSettings();});
+ var kt=back.querySelector('#keyTest');if(kt)kt.addEventListener('click',function(){testApiKey(kin.value||getKey(),back.querySelector('#keyResult'),kt);});
  var kr=back.querySelector('#keyRemove');if(kr)kr.addEventListener('click',function(){setKey('');document.body.removeChild(back);openSettings();});
  back.querySelector('#devRow').querySelectorAll('button').forEach(function(bt){bt.addEventListener('click',function(){STATE.device=bt.getAttribute('data-dev');saveState();document.body.removeChild(back);openSettings();});});
  back.querySelector('#resetBtn').addEventListener('click',function(){
@@ -1893,62 +1945,83 @@ var PIC_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 var COG_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 16v4"/></svg>';
 
 /* ---------- ORGANIZE ---------- */
-function orgFile(id,name,icon,tag){return '<div class="orgfile" data-org="'+id+'">'+icon+'<span>'+name+'</span>'+(tag?'<span class="rm">'+tag+'</span>':'')+'</div>';}
-function orgCol(title,which,rows){
- var ic=which==='down'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
- return '<div class="orgcol"><h5>'+ic+title+'</h5>'+rows+'</div>';
-}
+var FOLDER_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+var PLUS_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
+var CHK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+function fmTile(id,kind,name,opts){opts=opts||{};
+ var ic='<div class="fm-ico '+(kind==='folder'?'folder':'file')+'">'+(kind==='folder'?FOLDER_SVG:DOC_ICON)+'</div>';
+ var nm=opts.edit?'<div class="fm-name"><input value="'+name+'" readonly aria-label="name"></div>':'<div class="fm-name">'+name+'</div>';
+ return '<div class="fm-item'+(opts.sel?' sel':'')+'" data-org="'+id+'">'+ic+nm+'</div>';}
+function fmWin(crumb,action,items,banner){return '<div class="fm"><div class="fm-bar"><span class="fm-crumb">'+crumb+'</span>'+action+'</div><div class="fm-grid">'+items+'</div>'+(banner?'<div class="fm-banner">'+banner+'</div>':'')+'</div>';}
+var FM_NEW='<button class="fm-newbtn" data-org="newfolder">'+PLUS_SVG+'New folder</button>';
+var FM_SAVE='<button class="fm-newbtn save" data-org="savename">'+CHK_SVG+'Save name</button>';
+var CR_DOCS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Documents';
+var CR_BIZ=CR_DOCS+' <span class="sep">\u203A</span> Business';
 
 LESSONS.organize={title:'Organizing your files',steps:[
- {phase:'lecture',coach:'Two folders quietly fill up over time: <b>Downloads</b>, where new things land on their own, and <b>Documents</b>, where the keepers belong.',
-  tip:'The habit is small: move what you want to keep into Documents, and clear out the rest.',
-  stage:function(){return '<div class="rwpanel"><h4>Where your files gather</h4>'+
-   '<div class="concept"><div class="cbox drive"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div><b>Downloads</b><span>Everything you save from the web arrives here first</span></div>'+
+ {phase:'lecture',coach:'Everything you save from the web lands in <b>Downloads</b> first. The keepers belong in <b>Documents</b>, sorted into folders you make and name yourself.',
+  tip:'A little structure now saves a lot of searching later \u2014 a real gift to your business.',
+  stage:function(){return '<div class="rwpanel"><h4>From a pile to a filing system</h4>'+
+   '<div class="concept"><div class="cbox drive"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div><b>Downloads</b><span>Where new files arrive on their own</span></div>'+
    '<div class="arrow"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>'+
-   '<div class="cbox cloud"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><b>Documents</b><span>The tidy home for things worth keeping</span></div></div>'+
-   '<p>You\u2019ll move a keeper across, clear a leftover you no longer need, then choose between your {DEV} and the cloud.</p>'+
+   '<div class="cbox cloud"><div class="ic">'+FOLDER_SVG+'</div><b>Documents</b><span>Folders you make, name, and nest</span></div></div>'+
+   '<p>You\u2019ll make a folder, name it, put a folder inside it, rename a file, and file it away \u2014 the whole craft of keeping things findable.</p>'+
    '<div class="rw-actions" style="justify-content:center;"><button class="btn" id="lectureNext">Show me</button></div></div>';},
   wire:function(root,onDone){root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
- {phase:'practice',coach:'Here are both folders. Your <b>certificate.pdf</b> in Downloads is worth keeping \u2014 {CLICK} it to move it into Documents.',
-  tip:'Moving a file leaves Downloads and lands in Documents; nothing is lost.',
-  target:'[data-org="cert"]',nudge:'The certificate.pdf line in the Downloads column on the left.',
-  swap:function(root){
-   var f=root.querySelector('[data-org="cert"]');if(f)f.classList.add('gone');
-   var docs=root.querySelectorAll('.orgcol')[1];if(docs)docs.insertAdjacentHTML('beforeend',orgFile('certd','certificate.pdf',DOC_ICON,'moved here'));},
-  stage:function(){
-   var down=orgFile('receipt','receipt_march.pdf',DOC_ICON,'')+orgFile('installer','SetupHelper.exe',DOC_ICON,'leftover')+orgFile('cert','certificate.pdf',DOC_ICON,'keeper')+orgFile('dup','photo (1).jpg',PIC_ICON,'duplicate');
-   var docs=orgFile('lic','Insurance License.pdf',DOC_ICON,'')+orgFile('tax','Tax Records 2025.pdf',DOC_ICON,'');
-   return '<div class="orggrid">'+orgCol('Downloads','down',down)+orgCol('Documents','docs',docs)+'</div>';}},
- {phase:'practice',coach:'Now clear what you no longer need. That <b>SetupHelper.exe</b> already did its job \u2014 {CLICK} it to remove it and free up room.',
-  tip:'A leftover installer is safe to delete once the program is installed.',
-  target:'[data-org="installer"]',nudge:'The SetupHelper.exe line marked \u201cleftover\u201d in Downloads.',
-  onCorrect:function(root,frame){var f=root.querySelector('[data-org="installer"]');if(f)glossaryPop(frame,f,'Installer','the file that sets up a program. Once it\u2019s installed, the installer is safe to clear.');},
-  swap:function(root){var f=root.querySelector('[data-org="installer"]');if(f)f.classList.add('gone');},
-  stage:function(){
-   var down=orgFile('receipt','receipt_march.pdf',DOC_ICON,'')+orgFile('installer','SetupHelper.exe',DOC_ICON,'leftover')+orgFile('dup','photo (1).jpg',PIC_ICON,'duplicate');
-   var docs=orgFile('lic','Insurance License.pdf',DOC_ICON,'')+orgFile('tax','Tax Records 2025.pdf',DOC_ICON,'')+orgFile('certd','certificate.pdf',DOC_ICON,'');
-   return '<div class="orggrid">'+orgCol('Downloads','down',down)+orgCol('Documents','docs',docs)+'</div>';}},
- {phase:'lecture',coach:'One more choice: <b>your {DEV}</b> or <b>the cloud</b>. Saving on your {DEV} is quick and works offline; the cloud keeps a copy safe even if the device is lost.',
-  tip:'For anything precious \u2014 your license, family photos \u2014 keep it in both places.',
+ {phase:'lecture',coach:'One more choice as you go: <b>your {DEV}</b> or <b>the cloud</b>. Your {DEV} is quick and works offline; the cloud keeps a copy safe even if a device is lost.',
+  tip:'For anything precious \u2014 licenses, client records \u2014 keep it in both places.',
   stage:function(){return '<div class="rwpanel" style="text-align:center;"><h4>Your {DEV}, or the cloud</h4>'+
    '<div class="concept"><div class="cbox drive"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><b>On your {DEV}</b><span>Fast, always there, works without internet</span></div>'+
-   '<div class="cbox cloud"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.3A5 5 0 0 0 7 9a4 4 0 0 0 .5 8H18a4 4 0 0 0 0-8z"/></svg></div><b>In the cloud</b><span>Reachable from any device, safe if one is lost</span></div></div>'+
-   '<p>Google Drive, iCloud, and OneDrive are all clouds. Many devices back up to one automatically \u2014 a quiet safety net.</p>'+
-   '<div class="rw-actions" style="justify-content:center;"><button class="btn" id="lectureNext">Makes sense</button></div></div>';},
+   '<div class="cbox cloud"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.3A5 5 0 0 0 7 9a4 4 0 0 0 .5 8H18a4 4 0 0 0 0-8z"/></svg></div><b>In the cloud</b><span>Reachable anywhere, safe if a device is lost</span></div></div>'+
+   '<p>Google Drive, iCloud, and OneDrive are all clouds \u2014 and the folders you\u2019re about to build work the very same way inside them.</p>'+
+   '<div class="rw-actions" style="justify-content:center;"><button class="btn" id="lectureNext">Let\u2019s build</button></div></div>';},
   wire:function(root,onDone){root.querySelector('#lectureNext').addEventListener('click',function(){onDone(root.querySelector('#lectureNext'));});}},
+ {phase:'practice',coach:'Here\u2019s your Documents folder. To start a home for your business papers, {CLICK} <b>New folder</b>.',
+  tip:'A new folder always begins empty, waiting for a name.',
+  target:'[data-org="newfolder"]',nudge:'The <b>New folder</b> button at the top right of the window.',
+  swap:function(root){var grid=root.querySelector('.fm-grid');grid.insertAdjacentHTML('beforeend',fmTile('bizedit','folder','Business',{edit:true,sel:true}));var b=root.querySelector('[data-org="newfolder"]');if(b)b.outerHTML=FM_SAVE;},
+  stage:function(){return fmWin(CR_DOCS,FM_NEW,fmTile('lic','file','Insurance License.pdf',{})+fmTile('scan','file','scan_0423.pdf',{}));}},
+ {phase:'practice',coach:'A clear name is everything. \u201cBusiness\u201d is typed in \u2014 {CLICK} <b>Save name</b> to keep it.',
+  tip:'Short, plain names win: \u201cBusiness,\u201d \u201cTaxes,\u201d \u201cClients.\u201d',
+  target:'[data-org="savename"]',nudge:'The teal <b>Save name</b> button at the top right.',
+  onCorrect:function(root,frame){var t=root.querySelector('[data-org="biz"]');if(t)glossaryPop(frame,t,'Naming','a clear, short name is what makes a folder or file easy to find weeks later.');},
+  swap:function(root){var t=root.querySelector('[data-org="bizedit"]');if(t)t.outerHTML=fmTile('biz','folder','Business',{});var s=root.querySelector('[data-org="savename"]');if(s)s.outerHTML=FM_NEW;},
+  stage:function(){return fmWin(CR_DOCS,FM_SAVE,fmTile('lic','file','Insurance License.pdf',{})+fmTile('scan','file','scan_0423.pdf',{})+fmTile('bizedit','folder','Business',{edit:true,sel:true}));}},
+ {phase:'practice',coach:'Now step inside. {CLICK} the <b>Business</b> folder to open it.',
+  tip:'The trail at the top always shows where you are.',
+  target:'[data-org="biz"]',nudge:'The Business folder \u2014 the one with the folder icon.',
+  swap:function(root){root.querySelector('.fm').innerHTML='<div class="fm-bar"><span class="fm-crumb">'+CR_BIZ+'</span>'+FM_NEW+'</div><div class="fm-grid"><div style="grid-column:1/-1;color:var(--ink-soft);font-size:14px;padding:22px;text-align:center;">This folder is empty \u2014 ready for whatever you put in it.</div></div>';},
+  stage:function(){return fmWin(CR_DOCS,FM_NEW,fmTile('lic','file','Insurance License.pdf',{})+fmTile('scan','file','scan_0423.pdf',{})+fmTile('biz','folder','Business',{}));}},
+ {phase:'practice',coach:'A folder can hold folders. Inside Business, {CLICK} <b>New folder</b> to add one for your clients.',
+  tip:'Folders inside folders work like drawers inside a filing cabinet.',
+  target:'[data-org="newfolder"]',nudge:'The <b>New folder</b> button \u2014 now you\u2019re inside Business.',
+  onCorrect:function(root,frame){var t=root.querySelector('[data-org="clients"]');if(t)glossaryPop(frame,t,'Subfolder','a folder kept inside another folder, so related things stay grouped together.');},
+  swap:function(root){root.querySelector('.fm-grid').innerHTML=fmTile('clients','folder','Clients',{sel:true});var fm=root.querySelector('.fm');var b=document.createElement('div');b.className='fm-banner';b.innerHTML='You\u2019d name it just as you named Business \u2014 here it\u2019s \u201cClients.\u201d';fm.appendChild(b);},
+  stage:function(){return '<div class="fm"><div class="fm-bar"><span class="fm-crumb">'+CR_BIZ+'</span>'+FM_NEW+'</div><div class="fm-grid"><div style="grid-column:1/-1;color:var(--ink-soft);font-size:14px;padding:22px;text-align:center;">This folder is empty \u2014 ready for whatever you put in it.</div></div></div>';}},
+ {phase:'practice',coach:'Files deserve clear names too. This one came off a scanner as \u201cscan_0423.pdf.\u201d A better name is typed in \u2014 {CLICK} <b>Save name</b>.',
+  tip:'\u201CPolicy \u2013 J. Cruz.pdf\u201D tells you exactly what it is at a glance.',
+  target:'[data-org="savename"]',nudge:'The teal <b>Save name</b> button at the top right.',
+  onCorrect:function(root,frame){var t=root.querySelector('[data-org="file"]');if(t)glossaryPop(frame,t,'Renaming','giving a file a clearer name. The file itself is unchanged \u2014 only its label.');},
+  swap:function(root){var t=root.querySelector('[data-org="fileedit"]');if(t)t.outerHTML=fmTile('file','file','Policy \u2013 J. Cruz.pdf',{sel:true});var s=root.querySelector('[data-org="savename"]');if(s)s.outerHTML=FM_NEW;},
+  stage:function(){return fmWin(CR_DOCS,FM_SAVE,fmTile('lic','file','Insurance License.pdf',{})+fmTile('biz','folder','Business',{})+fmTile('fileedit','file','Policy \u2013 J. Cruz.pdf',{edit:true,sel:true}));}},
+ {phase:'practice',coach:'Last touch: tuck it away. With the file already picked, {CLICK} the <b>Business</b> folder to file it inside.',
+  tip:'On your own computer you can also drag a file straight onto a folder to move it.',
+  target:'[data-org="biz"]',nudge:'The Business folder \u2014 clicking it files the selected file inside.',
+  swap:function(root){var f=root.querySelector('[data-org="file"]');if(f)f.remove();var fm=root.querySelector('.fm');var b=document.createElement('div');b.className='fm-banner';b.innerHTML='\u201CPolicy \u2013 J. Cruz.pdf\u201D is now filed under Business.';fm.appendChild(b);},
+  stage:function(){return fmWin(CR_DOCS,FM_NEW,fmTile('lic','file','Insurance License.pdf',{})+fmTile('biz','folder','Business',{})+fmTile('file','file','Policy \u2013 J. Cruz.pdf',{sel:true}));}},
  {phase:'application',isReal:true,kind:'confirm',
-  coach:'Now the real thing: open your files and move one item from <b>Downloads</b> into <b>Documents</b>.',
-  tip:'Just one file is plenty \u2014 the move is the whole skill.',
-  helperPrime:'I want to move a file from my Downloads folder into my Documents folder and I\u2019m not sure how. Can you walk me through it step by step?',
+  coach:'Now build a little structure of your own, for real, in your Documents.',
+  tip:'A folder named for your business, one folder inside it, and one file tucked in \u2014 that\u2019s a filing system.',
+  helperPrime:'I want to make a new folder in Documents, name it, put another folder inside it, and move a file into it. Can you walk me through each step?',
   stage:function(){
    var steps=isTouch()?
-    '<li>Open the <b>Files</b> app.</li><li>Tap <b>Browse</b>, then <b>Downloads</b>.</li><li>Touch and hold a file, choose <b>Move</b>, and pick <b>Documents</b>.</li>':
-    '<li>Open your file window \u2014 the <b>folder</b> icon on your taskbar or dock.</li><li>Click <b>Downloads</b> on the left.</li><li>Drag a file onto <b>Documents</b>, or right-click it and choose <b>Move</b>.</li>';
-   return '<div class="rwpanel"><h4>Move one real file</h4><ol class="steps-list">'+steps+'</ol>'+
+    '<li>Open <b>Files</b>, tap <b>Browse</b>, then <b>Documents</b>.</li><li>Tap the <b>\u22EF</b> (or dots) and choose <b>New Folder</b>; give it a name.</li><li>Open it, make another folder inside the same way.</li><li>Touch and hold a file, choose <b>Move</b>, and pick your new folder.</li>':
+    '<li>Open your file window and click <b>Documents</b> on the left.</li><li>Right-click an empty space, choose <b>New folder</b>, and type a name.</li><li>Double-click to open it, then make another folder inside.</li><li>Drag a file onto your folder, or right-click it and choose <b>Move</b>.</li>';
+   return '<div class="rwpanel"><h4>Build your own filing system</h4><ol class="steps-list">'+steps+'</ol>'+
    '<div class="rw-actions"><button class="btn" id="openHelperBtn">Open my helper</button>'+
-   '<button class="btn secondary" id="confirmGo">I moved a file</button></div>'+
+   '<button class="btn secondary" id="confirmGo">I built my folders</button></div>'+
    '<div class="rw-actions" style="margin-top:8px;"><button class="btn secondary" id="sideways">Something went sideways</button></div></div>';},
-  sidewaysQ:'I\u2019m trying to move a file from Downloads to Documents on my device and I\u2019m stuck. Can you help?'}
+  sidewaysQ:'I\u2019m making folders in Documents, naming them, and moving a file into one, and I\u2019m stuck somewhere. Can you help me step by step?'}
 ]};
 
 /* ---------- EMAIL ---------- */
@@ -2073,6 +2146,9 @@ GLOSS.push(
  {t:'Email signature',d:'A sign-off that adds itself to the bottom of your emails \u2014 your name, and anything else you choose.'},
  {t:'Downloads folder',d:'Where files from the web land first. A busy front hallway that\u2019s worth clearing now and then.'},
  {t:'Documents folder',d:'The tidy home for files worth keeping. Move your keepers here.'},
+ {t:'Folder',d:'A labeled container for files. You make one, give it a clear name, and drop related things inside.'},
+ {t:'Subfolder',d:'A folder kept inside another folder, so related things stay grouped \u2014 like drawers inside a cabinet.'},
+ {t:'Renaming',d:'Giving a file or folder a clearer name. The file itself is unchanged; only its label.'},
  {t:'Hard drive',d:'The storage inside your device. Fast and always there, but tied to that one machine.'},
  {t:'Private / Incognito window',d:'A browser window that forgets the visit once closed. Good on a shared or borrowed computer.'}
 );
