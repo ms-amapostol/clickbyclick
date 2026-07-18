@@ -684,6 +684,7 @@
     <div class="attachrow" id="attachRow"><img id="attachThumb" alt=""><span>Picture attached</span><button id="attachClear" aria-label="Remove picture">&#215;</button></div>
     <div class="askbox">
       <button class="clip" id="clipBtn" aria-label="Attach a picture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+      <button class="clip" id="screenBtn" aria-label="Show my screen" title="Show my screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
       <input type="file" accept="image/*" class="hidden-file" id="clipFile">
       <input id="askInput" type="text" placeholder="Type your question here&#8230;" aria-label="Ask a question">
       <button class="send" id="sendBtn" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
@@ -1803,11 +1804,15 @@ function styleSnippet(){
 }
 function systemPrompt(){
  var nm=STATE.name||'the person';
+ var seeHint=isTouch()
+  ? 'You cannot see her screen on your own. If you need to see something, ask her to take a screenshot ('+DK('SHOTQ')+') and send it with the paperclip button at the bottom of the chat.'
+  : 'You cannot see her screen on your own. If you need to see something, tell her to tap the monitor button labelled \u201cShow my screen\u201d at the bottom of the chat \u2014 it sends you a picture of her screen. She can also attach a screenshot with the paperclip.';
  return 'You are a calm, patient helper living in the corner of a computer-skills app for '+nm+', an adult who is refreshing her computer and internet skills privately. '+
   'She is using '+devLabelFull(STATE.device)+'. Right now she is on: '+HCTX+'. '+
   styleSnippet()+' '+
   'Give concrete, step-by-step help in plain language. Use short steps she can follow one at a time. Never condescend, never call anything easy or simple, and never imply she should already know something. '+
-  'She may attach a screenshot; if she does, look closely at the picture and help with exactly what it shows. If a message looks like a scam, say so plainly and tell her not to click or reply. Keep formatting light \u2014 short sentences and, at most, a short numbered list.';
+  seeHint+' '+
+  'When she does send a picture, look closely at it and help with exactly what it shows. If a message looks like a scam, say so plainly and tell her not to click or reply. Keep formatting light \u2014 short sentences and, at most, a short numbered list.';
 }
 
 function addMsg(role,text,imgSrc){
@@ -1821,7 +1826,11 @@ function addMsg(role,text,imgSrc){
 function escapeHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function primeChat(){/* context label updates per step via HCTX; keep chat history */}
-function greetInChat(){if(greeted)return;greeted=true;addMsg('ai','Hello'+(STATE.name?', '+STATE.name:'')+'. Ask me anything \u2014 in your own words. You can attach a picture with the paperclip, and I\u2019ll look at it with you.');}
+function greetInChat(){if(greeted)return;greeted=true;
+ var how=isTouch()
+  ? 'To show me something, send a picture with the paperclip.'
+  : 'To show me your screen, tap the monitor button and I\u2019ll take a look; the paperclip sends a picture too.';
+ addMsg('ai','Hello'+(STATE.name?', '+STATE.name:'')+'. Ask me anything, in your own words. '+how);}
 function openHelper(prefill){
  var h=document.getElementById('helper');h.classList.remove('closed');document.getElementById('helperHead').setAttribute('aria-expanded','true');
  greetInChat();
@@ -1884,6 +1893,40 @@ function processImage(file){
 }
 function clearAttach(){pendingImg=null;document.getElementById('attachRow').classList.remove('show');document.getElementById('clipFile').value='';}
 
+function showAttachThumb(dataUrl){
+ pendingImg={data:dataUrl.split(',')[1],media:'image/jpeg',src:dataUrl};
+ document.getElementById('attachThumb').src=dataUrl;
+ document.getElementById('attachRow').classList.add('show');
+}
+function captureScreen(){
+ openHelper('');
+ var md=(window.navigator&&window.navigator.mediaDevices)?window.navigator.mediaDevices:null;
+ if(!md||!md.getDisplayMedia){
+  addMsg('ai','On this device I can\u2019t reach in and take the picture myself. Take a screenshot instead \u2014 '+DK('SHOT')+' \u2014 then tap the paperclip to send it to me.');
+  return;
+ }
+ addMsg('ai','A little window will pop up \u2014 choose what to show me (usually \u201cEntire Screen\u201d), and I\u2019ll take the picture.');
+ md.getDisplayMedia({video:true}).then(function(stream){
+  var v=document.createElement('video');v.srcObject=stream;v.muted=true;
+  var grabbed=false;
+  var grab=function(){
+   if(grabbed)return;grabbed=true;
+   var w=v.videoWidth||1280,h=v.videoHeight||800,max=1400;
+   if(w>max||h>max){var sc=Math.min(max/w,max/h);w=Math.round(w*sc);h=Math.round(h*sc);}
+   var c=document.createElement('canvas');c.width=w;c.height=h;
+   c.getContext('2d').drawImage(v,0,0,w,h);
+   var data=c.toDataURL('image/jpeg',0.8);
+   stream.getTracks().forEach(function(t){t.stop();});
+   showAttachThumb(data);
+   addMsg('ai','I\u2019ve got a picture of your screen. Now type what you\u2019d like help with and press send.');
+  };
+  v.onloadedmetadata=function(){var p=v.play();if(p&&p.catch)p.catch(function(){});setTimeout(grab,350);};
+  setTimeout(function(){if(!grabbed&&v.videoWidth)grab();},1600);
+ }).catch(function(){
+  addMsg('ai','No harm done \u2014 nothing was captured. When you\u2019re ready, tap the monitor button again, or send a screenshot with the paperclip.');
+ });
+}
+
 function sendMessage(){
  var inp=document.getElementById('askInput'),text=inp.value.trim();
  if(!text&&!pendingImg)return;
@@ -1926,6 +1969,7 @@ function boot(){
  document.getElementById('sendBtn').addEventListener('click',sendMessage);
  document.getElementById('askInput').addEventListener('keydown',function(e){if(e.key==='Enter')sendMessage();});
  document.getElementById('clipBtn').addEventListener('click',function(){document.getElementById('clipFile').click();});
+ document.getElementById('screenBtn').addEventListener('click',captureScreen);
  document.getElementById('clipFile').addEventListener('change',function(){if(this.files&&this.files[0])processImage(this.files[0]);});
  document.getElementById('attachClear').addEventListener('click',clearAttach);
  document.getElementById('gearBtn').addEventListener('click',openSettings);
